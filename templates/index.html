@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bug Report Classifier - QA Dashboard</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --jira-blue: #0052CC;
+            --jira-light-blue: #DEEBFF;
+            --jira-gray: #F4F5F7;
+            --text-color: #172B4D;
+            --subtle-text: #6B778C;
+            --btn-hover-color: #0747A6;
+            --input-border-color: #ddd;
+            --input-focus-color: #27ae60;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            min-height: 100vh;
+            background-color: var(--jira-gray);
+            transition: all 0.3s ease;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background-color: var(--jira-blue);
+            color: white;
+            padding: 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .sidebar h2 {
+            color: #fff;
+            font-size: 24px;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .sidebar ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .sidebar ul li {
+            margin: 15px 0;
+        }
+
+        .sidebar ul li a {
+            color: #ecf0f1;
+            font-size: 18px;
+            text-decoration: none;
+            display: block;
+            padding: 10px 20px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .sidebar ul li a:hover {
+            background-color: #34495e;
+            transform: scale(1.05);
+        }
+
+        /* Main Content Area */
+        .main-content {
+            margin-left: 250px;
+            padding: 40px;
+            width: 100%;
+            overflow: auto;
+            transition: margin-left 0.3s ease;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 20px;
+        }
+
+        .dashboard-header h1 {
+            color: var(--text-color);
+            font-size: 32px;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background-color: var(--jira-blue);
+            color: white;
+            padding: 12px 20px;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--btn-hover-color);
+            transform: scale(1.05);
+        }
+
+        .card {
+            background-color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            color: var(--text-color);
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .card input[type="file"],
+        .card input[type="submit"],
+        .card textarea {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            font-size: 16px;
+            border-radius: 6px;
+            border: 1px solid var(--input-border-color);
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+        }
+
+        .card input[type="submit"] {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            margin-top: 20px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .card input[type="submit"]:hover {
+            background-color: #2ecc71;
+            transform: scale(1.05);
+        }
+
+        .card input[type="file"]:focus,
+        .card textarea:focus {
+            border-color: var(--input-focus-color);
+            outline: none;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .results-table th, .results-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            font-size: 16px;
+        }
+
+        .results-table th {
+            background-color: var(--jira-blue);
+            color: white;
+        }
+
+        .results-table tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 14px;
+            color: var(--subtle-text);
+            margin-top: 30px;
+        }
+
+        /* Error Message */
+        .error-message {
+            color: red;
+            background-color: #f8d7da;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        /* Loading Text with Animated Dots */
+        #loadingSpinner {
+            display: none;
+            text-align: center;
+            font-size: 18px;
+            color: var(--jira-blue);
+            margin-bottom: 20px;
+        }
+
+        .loading-text::after {
+            content: '.';
+            animation: dot-blink 1s infinite step-start;
+        }
+
+        .loading-text::before {
+            content: '.';
+            animation: dot-blink 1s infinite 0.33s step-start;
+        }
+
+        .loading-text {
+            display: inline;
+            font-weight: bold;
+        }
+
+        @keyframes dot-blink {
+            0% { content: '.'; }
+            33% { content: '..'; }
+            66% { content: '...'; }
+            100% { content: '.'; }
+        }
+
+        /* Responsive Layout */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+
+            .main-content {
+                margin-left: 200px;
+            }
+
+            .sidebar ul li a {
+                font-size: 16px;
+            }
+
+            .card input[type="submit"],
+            .card input[type="file"],
+            .card textarea {
+                padding: 10px;
+            }
+
+            .dashboard-header h1 {
+                font-size: 28px;
+            }
+
+            .footer {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+        <h2>QA Dashboard</h2>
+        <ul>
+            <li><a href="#">Dashboard</a></li>
+            <li><a href="#">Bug Reports</a></li>
+            <li><a href="#">Tasks</a></li>
+            <li><a href="#">Projects</a></li>
+        </ul>
+        <div>
+            <a href="#" class="btn-primary">Log Out</a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="dashboard-header">
+            <h1>Bug Report Classifier - QA Dashboard</h1>
+            <a href="/" class="btn-primary">Upload Another File</a>
+        </div>
+
+        <!-- Display error message if there is any -->
+        {% if error %}
+            <div class="error-message">
+                <strong>Error:</strong> {{ error }}
+            </div>
+        {% endif %}
+
+        <!-- Loading Spinner (Text with Dots) - Positioned Above Upload Form -->
+        <div id="loadingSpinner">
+            <span class="loading-text">Loading</span>
+        </div>
+
+        <!-- Card for Upload CSV -->
+        <div class="card">
+            <h2>Upload Bug Report CSV</h2>
+            <form method="POST" enctype="multipart/form-data" onsubmit="return validateForm()">
+                <div class="form-group">
+                    <label for="file" title="Only CSV files are allowed.">Select Bug Report CSV:</label>
+                    <input type="file" name="file" accept=".csv" required title="Please upload a CSV file containing bug report summaries.">
+                </div>
+                <input type="submit" value="Upload Bug Report CSV">
+            </form>
+        </div>
+
+        <!-- Card for Entering Bug Report Summary -->
+        <div class="card">
+            <h2>Enter Bug Report Summary</h2>
+            <form method="POST" onsubmit="showLoading()">
+                <div class="form-group">
+                    <label for="summary">Bug Report Summary:</label>
+                    <textarea name="summary" rows="6" placeholder="Enter a bug report description" required></textarea>
+                </div>
+                <input type="submit" value="Generate Prediction">
+            </form>
+        </div>
+
+        <!-- Card for Displaying Results -->
+        {% if predictions %}
+        <div class="card">
+            <h2>Prediction Results</h2>
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        <th>Summary</th>
+                        <th>Predicted Severity</th>
+                        <th>Predicted Type</th>
+                        <th>Prediction Confidence</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{{ predictions['Summary'] }}</td>
+                        <td>{{ predictions['Predicted Severity'] }}</td>
+                        <td>{{ predictions['Predicted Type'] }}</td>
+                        <td>{{ predictions['Prediction Confidence'] }}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <a href="{{ download_url }}" class="btn-primary">Download Results</a>
+        </div>
+        {% endif %}
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>&copy; 2025 Bug Report Classifier. All rights reserved.</p>
+        </div>
+    </div>
+
+    <script>
+        // Validate the form before submission
+        function validateForm() {
+            const fileInput = document.querySelector('input[type="file"]');
+            const summaryInput = document.querySelector('textarea[name="summary"]');
+
+            // Check if a file is uploaded and it's a CSV
+            if (fileInput.files.length === 0 && !summaryInput.value.trim()) {
+                alert("Please upload a CSV file or enter a bug report summary.");
+                return false;
+            }
+
+            if (fileInput.files.length > 0 && !fileInput.files[0].name.endsWith('.csv')) {
+                alert("Please upload a valid CSV file.");
+                return false;
+            }
+
+            showLoading();
+            return true;
+        }
+
+        // Show loading text with dots above the form
+        function showLoading() {
+            document.getElementById('loadingSpinner').style.display = 'block';
+        }
+
+        // Hide loading text after task is completed (can be triggered server-side after task completes)
+        function hideLoading() {
+            document.getElementById('loadingSpinner').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

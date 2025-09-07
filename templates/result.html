@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QA Prediction Results</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --jira-blue: #0052CC;
+            --jira-light-blue: #DEEBFF;
+            --jira-gray: #F4F5F7;
+            --text-color: #172B4D;
+            --subtle-text: #6B778C;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--jira-gray);
+            color: var(--text-color);
+            position: relative;
+        }
+
+        .nav-bar {
+            background-color: var(--jira-blue);
+            color: white;
+            padding: 16px 32px;
+            font-size: 20px;
+            font-weight: 500;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        h1 {
+            font-size: 28px;
+            border-bottom: 2px solid var(--jira-light-blue);
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            font-size: 22px;
+            color: var(--jira-blue);
+            margin-top: 0;
+        }
+
+        h3 {
+            font-size: 18px;
+            margin-top: 24px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 15px;
+        }
+
+        table thead {
+            background-color: var(--jira-light-blue);
+        }
+
+        table th, table td {
+            padding: 12px 16px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        table th {
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        table tr:hover {
+            background-color: #f9fafc;
+        }
+
+        .btn {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 12px 20px;
+            background-color: var(--jira-blue);
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            border-radius: 4px;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        .btn:hover {
+            background-color: #0747A6;
+        }
+
+        .footer-note {
+            font-size: 13px;
+            color: var(--subtle-text);
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        /* Centering the Loading Spinner */
+        #loadingSpinner {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="nav-bar">
+        🛠️ QA Dashboard – Prediction Results
+    </div>
+
+    <div class="container">
+
+        <!-- If results are from CSV file -->
+        {% if input_df is not none %}
+            <h1>Bug Prediction Overview</h1>
+            <h2>Batch Predictions from Uploaded Report</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Summary</th>
+                        <th>Predicted Severity</th>
+                        <th>Predicted Type</th>
+                        <th>Prediction Confidence</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for index, row in input_df.iterrows() %}
+                    <tr>
+                        <td>{{ row['Summary'] }}</td>
+                        <td>{{ row['Predicted Severity'] }}</td>
+                        <td>{{ row['Predicted Type'] }}</td>
+                        <td>{{ row['Prediction Confidence'] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        <!-- If results are from single summary input -->
+        {% elif predictions %}
+            <h1>Single Report Prediction</h1>
+            <p><strong>Summary:</strong> {{ predictions['Summary'] }}</p>
+            <p><strong>Predicted Severity:</strong> {{ predictions['Predicted Severity'] }}</p>
+            <p><strong>Predicted Type:</strong> {{ predictions['Predicted Type'] }}</p>
+            <p><strong>Prediction Confidence:</strong> {{ predictions['Prediction Confidence'] }}</p>
+        {% endif %}
+
+        <!-- Download Button -->
+        <a href="{{ download_url }}" class="btn">📥 Download Results as CSV</a>
+
+        <a href="/" class="btn">🔁 Upload Another File or Enter Another Summary</a>
+
+        <p class="footer-note">This QA tool assists in automatically classifying bug reports. Ensure final validation before use.</p>
+    </div>
+
+    <!-- Loading Spinner (Centering is done via CSS) -->
+    <div id="loadingSpinner">
+        <div class="spinner"></div>
+        <p>Loading...</p>
+    </div>
+
+</body>
+</html>
